@@ -3,7 +3,29 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <UserSecretsId>f2123364-f41e-49d1-983e-9769c345f9fe</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\Images\01d.png" />
+    <Content Include="Resources\Images\01n.png" />
+    <Content Include="Resources\Images\02d.png" />
+    <Content Include="Resources\Images\02n.png" />
+    <Content Include="Resources\Images\03d.png" />
+    <Content Include="Resources\Images\03n.png" />
+    <Content Include="Resources\Images\04d.png" />
+    <Content Include="Resources\Images\04n.png" />
+    <Content Include="Resources\Images\09d.png" />
+    <Content Include="Resources\Images\09n.png" />
+    <Content Include="Resources\Images\10d.png" />
+    <Content Include="Resources\Images\10n.png" />
+    <Content Include="Resources\Images\11d.png" />
+    <Content Include="Resources\Images\11n.png" />
+    <Content Include="Resources\Images\13d.png" />
+    <Content Include="Resources\Images\13n.png" />
+    <Content Include="Resources\Images\50d.png" />
+    <Content Include="Resources\Images\50n.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
