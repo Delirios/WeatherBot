@@ -10,6 +10,8 @@ using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WeatherBot.BusinessLogic;
+using WeatherBot.Services;
 
 namespace WeatherBot
 {
@@ -30,8 +32,12 @@ namespace WeatherBot
             // Create the Bot Framework Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
+            services.AddSingleton < BotServices>();
+
+            services.AddTransient<IWeatherService, WeatherService>();
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
             services.AddTransient<IBot, Bots.WeatherBot>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

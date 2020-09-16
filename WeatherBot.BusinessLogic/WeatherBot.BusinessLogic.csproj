@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="WeatherApp.Domain">
+      <HintPath>..\..\WebAPI_WeatherService\WeatherApp.Domain\bin\Debug\netstandard2.0\WeatherApp.Domain.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

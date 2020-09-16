@@ -7,8 +7,15 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
+    <PackageReference Include="Microsoft.Bot.Builder.AI.Luis" Version="4.10.3" />
     <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.10.3" />
     <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.10.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="WeatherApp.Domain">
+      <HintPath>..\..\WebAPI_WeatherService\WeatherApp.Domain\bin\Debug\netstandard2.0\WeatherApp.Domain.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
     <ItemGroup>
@@ -16,5 +23,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\WeatherBot.BusinessLogic\WeatherBot.BusinessLogic.csproj" />
+    </ItemGroup>
 
 </Project>
