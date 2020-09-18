@@ -1,0 +1,88 @@
+﻿{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.2",
+  "backgroundImage": {
+    "url": "https://image.freepik.com/free-vector/blue-blurred-background_1159-759.jpg"
+  },
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "${name}",
+      "size": "Large",
+      "isSubtle": true,
+      "width": "stretch"
+    },
+    {
+      "type": "TextBlock",
+      "text": "{{DATE(${formatEpoch(dt, 'yyyy-MM-ddTHH:mm:ssZ')},LONG)}}",
+      "spacing": "None"
+    },
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "items": [
+            {
+              "type": "Image",
+              "url": "https://weatherbotapi.azurewebsites.net/Resources/Images/${weather[0].icon}.png",
+              "size": "Stretch"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "${formatNumber((main.temp),1)}",
+              "size": "ExtraLarge",
+              "spacing": "None"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "°C",
+              "weight": "Bolder",
+              "spacing": "Small"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Відчувається як: ${formatNumber((main.feels_like), 0)} °C"
+            },
+            {
+              "type": "TextBlock",
+              "text": "Вологість : ${formatNumber((main.humidity), 0)} %",
+              "spacing": "None"
+            },
+            {
+              "type": "TextBlock",
+              "text": "Швидкість вітру: ${formatNumber((wind.speed), 0)}  м/с",
+              "spacing": "None"
+            },
+            {
+              "type": "TextBlock",
+              "text": "Хмарність : ${formatNumber((clouds.all), 0)} %",
+              "spacing": "None"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+}

@@ -1,12 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using AdaptiveCards;
+using AdaptiveCards.Rendering;
+using AdaptiveCards.Templating;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
+using Microsoft.Bot.Connector;
+using Newtonsoft.Json;
 using PluralsightBot.Helpers;
 using WeatherApp.Domain;
 using WeatherBot.BusinessLogic;
@@ -51,34 +59,13 @@ namespace WeatherBot.Bots
                 var cityName = rgx.Replace(token.ToString(), "").Trim();
                 var data = await _weatherService.ShowWeatherDataAsync(cityName);
 
-                foreach (var item in data.weather)
-                {
-                    imageUrl = item.icon;
-                }
+                var template = new AdaptiveCardTemplate(File.ReadAllText("./Resources/adaptiveCard.json"));
+                var expanded = template.Expand(data);
 
-                var imagePath = Path.Combine(Environment.CurrentDirectory, $"./Resources/Images/{imageUrl}.png");
-                var imageData = Convert.ToBase64String(File.ReadAllBytes(imagePath));
-                var card = new HeroCard
-                {
-                    Title = data.cityname,
+                var attachment = CreateAdaptiveCardUsingJsons(expanded);
+                var response = MessageFactory.Attachment(attachment);
+                await turnContext.SendActivityAsync(response);
 
-                    Text = $"Температура: {data.main.temp}" +
-                           Environment.NewLine +
-                           $"Відчувається як: { data.main.feels_like }" +
-                           Environment.NewLine +
-                           $"Швидкість вітру: {data.wind.speed} м/c",
-
-                    Images = new List<CardImage>() { new CardImage($"data:image/png;base64,{imageData}") },
-
-                    Buttons = new List<CardAction>()
-                    {
-                        new CardAction(ActionTypes.OpenUrl, "Перейти на сайт", null, "Перейти на сайт", "Перейти на сайт",
-                            "https://allweather.azurewebsites.net"),
-                    },
-
-                };
-                var response = MessageFactory.Attachment(card.ToAttachment());
-                await turnContext.SendActivityAsync(response, cancellationToken);
             }
             catch (Exception e)
             {
@@ -86,5 +73,47 @@ namespace WeatherBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Text(e.Message, e.Message), cancellationToken);
             }
         }
+        private Attachment CreateAdaptiveCardUsingSdk()
+        {
+            var card = new AdaptiveCard();
+            card.Body.Add(new AdaptiveTextBlock() { Text = "Colour", Size = AdaptiveTextSize.Medium, Weight = AdaptiveTextWeight.Bolder });
+            card.Body.Add(new AdaptiveChoiceSetInput()
+            {
+                Id = "Colour",
+                Style = AdaptiveChoiceInputStyle.Compact,
+                Choices = new List<AdaptiveChoice>(new[] {
+                    new AdaptiveChoice() { Title = "Red", Value = "RED" },
+                    new AdaptiveChoice() { Title = "Green", Value = "GREEN" },
+                    new AdaptiveChoice() { Title = "Blue", Value = "BLUE" } })
+            });
+            card.Body.Add(new AdaptiveTextBlock() { Text = "Registration number:", Size = AdaptiveTextSize.Medium, Weight = AdaptiveTextWeight.Bolder });
+            card.Body.Add(new AdaptiveTextInput() { Style = AdaptiveTextInputStyle.Text, Id = "RegistrationNumber" });
+            card.Actions.Add(new AdaptiveSubmitAction() { Title = "Submit" });
+            return new Attachment()
+            {
+                ContentType = AdaptiveCard.ContentType,
+                Content = card
+            };
+        }
+
+        private Attachment CreateAdaptiveCardUsingJson()
+        {
+            return new Attachment
+            {
+                
+                ContentType = AdaptiveCard.ContentType,
+                Content = AdaptiveCard.FromJson(File.ReadAllText("./Resources/adaptiveCard.json"))
+            };
+        }
+        private Attachment CreateAdaptiveCardUsingJsons(string json)
+        {
+            return new Attachment
+            {
+
+                ContentType = AdaptiveCard.ContentType,
+                Content = AdaptiveCard.FromJson(json).Card
+            };
+        }
+
     }
 }
