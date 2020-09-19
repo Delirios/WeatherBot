@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-namespace PluralsightBot.Helpers
+namespace Helpers
 {
     public static class JsonExtensions
     {
