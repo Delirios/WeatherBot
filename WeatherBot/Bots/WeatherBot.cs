@@ -11,21 +11,20 @@ namespace WeatherBot.Bots
 {
     public class WeatherBot<T> : ActivityHandler where T : Dialog
     {
-    protected readonly BotServices _botServices;
+        protected readonly BotServices _botServices;
+        protected readonly StateService _stateService;
+        protected readonly Dialog _dialog;
 
-    protected readonly Dialog _dialog;
-
-
-    public WeatherBot(IWeatherService weatherService, BotServices botServices, Dialog dialog)
-    {
-        _botServices = botServices;
-        _dialog = dialog;
-    }
-
-    protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext,
-        CancellationToken cancellationToken)
-    {
-        await _dialog.Run(turnContext, cancellationToken);
-    }
+        public WeatherBot(StateService stateService,BotServices botServices, T dialog)
+        {
+            _stateService = stateService ?? throw new System.ArgumentNullException(nameof(stateService));
+            _botServices = botServices ?? throw new System.ArgumentNullException(nameof(botServices));
+            _dialog = dialog ?? throw new System.ArgumentNullException(nameof(dialog));
+        }
+        protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext,
+            CancellationToken cancellationToken)
+        {
+            await _dialog.Run(turnContext, _stateService.DialogStateAccessor, cancellationToken);
+        }
     }
 }

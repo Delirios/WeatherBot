@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using Microsoft.Bot.Builder.Azure;
 using WeatherBot.BusinessLogic;
 using WeatherBot.Dialogs;
 using WeatherBot.Services;
@@ -23,7 +24,6 @@ namespace WeatherBot
         {
             Configuration = configuration;
         }
-
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -34,13 +34,28 @@ namespace WeatherBot
             // Create the Bot Framework Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
-            services.AddSingleton < BotServices>();
+            services.AddSingleton <BotServices>();
+
             ConfigureDialogs(services);
+
+            ConfigureState(services);
 
             services.AddTransient<IWeatherService, WeatherService>();
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
             services.AddTransient<IBot, Bots.WeatherBot<MainDialog>>();
 
+        }
+
+        private void ConfigureState(IServiceCollection services)
+        {
+            var storageAccount = "DefaultEndpointsProtocol=https;AccountName=allweatherstorage;AccountKey=+JKmeSEYuY9TlpoZLA/QmM7rK65roGgtxcXwGR0FCtWm4kutb0LyyBwr4nfVdFYjdkzIX8PMekYKZCazxz3pLg==;EndpointSuffix=core.windows.net";
+            var storageContainer = "mystatedata";
+
+            services.AddSingleton<IStorage>(new AzureBlobStorage(storageAccount, storageContainer));
+
+            services.AddSingleton<ConversationState>();
+
+            services.AddSingleton<StateService>();
         }
 
         private void ConfigureDialogs(IServiceCollection services)

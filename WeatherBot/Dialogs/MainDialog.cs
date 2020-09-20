@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
+using WeatherBot.BusinessLogic;
 using WeatherBot.Services;
 
 namespace WeatherBot.Dialogs
@@ -12,10 +13,13 @@ namespace WeatherBot.Dialogs
     public class MainDialog : ComponentDialog
     {
         private readonly BotServices _botServices;
+        private readonly IWeatherService _weatherService;
+        private readonly StateService _stateService;
 
-        public MainDialog(BotServices botServices) : base(nameof(MainDialog))
+        public MainDialog(BotServices botServices, IWeatherService weatherService, StateService stateService) : base(nameof(MainDialog))
         {
-
+            _stateService = stateService;
+            _weatherService = weatherService;
             _botServices = botServices;
             InitializeWaterfallDialog();
         }
@@ -29,8 +33,10 @@ namespace WeatherBot.Dialogs
                 FinalStepAsync
             };
 
-            AddDialog(new GreetingDialog($"{nameof(GreetingDialog)}.greeting", _botServices));
-            AddDialog(new WeatherDialog($"{nameof(WeatherDialog)}.weather", _botServices));
+            AddDialog(new GreetingDialog($"{nameof(MainDialog)}.greeting",_stateService));
+            AddDialog(new WeatherDialog($"{nameof(MainDialog)}.weather", _botServices, _weatherService, _stateService));
+            AddDialog(new WaterfallDialog($"{nameof(MainDialog)}.mainFlow", waterfallSteps));
+
 
             InitialDialogId = $"{nameof(MainDialog)}.mainFlow";
         }

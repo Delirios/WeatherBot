@@ -10,11 +10,10 @@ namespace WeatherBot.Helpers
 {
     public static class DialogExtensions
     {
-        public static async Task Run(this Dialog dialog, ITurnContext turnContext, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task Run(this Dialog dialog, ITurnContext turnContext, IStatePropertyAccessor<DialogState> accessor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var dialogSet= new DialogSet();
+            var dialogSet= new DialogSet(accessor);
             dialogSet.Add(dialog);
-
             var dialogContext = await dialogSet.CreateContextAsync(turnContext, cancellationToken);
             var results = await dialogContext.ContinueDialogAsync(cancellationToken);
             if (results.Status == DialogTurnStatus.Empty)

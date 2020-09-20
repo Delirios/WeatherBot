@@ -13,10 +13,11 @@ namespace WeatherBot.Dialogs
 {
     public class GreetingDialog : ComponentDialog
     {
-        private readonly BotServices _botServices;
-        public GreetingDialog(string dialogId, BotServices botServices) : base(dialogId)
+        private readonly StateService _stateService;
+
+        public GreetingDialog(string dialogId, StateService stateService) : base(dialogId)
         {
-            _botServices = botServices;
+            _stateService = stateService;
             InitializeWaterfallDialog();
         }
 

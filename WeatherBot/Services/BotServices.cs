@@ -17,14 +17,10 @@ namespace WeatherBot.Services
 {
     public class BotServices
     {
-        public IWeatherService _weatherService;
         public LuisRecognizer Dispatch { get; private set; }
 
-        public BotServices(IConfiguration configuration, IWeatherService weatherService)
+        public BotServices(IConfiguration configuration)
         {
-            _weatherService = weatherService;
-            
-            
             // Read the setting for cognitive services (LUIS, QnA) from the appsettings.json
             var luisApplication = new LuisApplication(
                 configuration["LuisAppId"],
@@ -45,7 +41,6 @@ namespace WeatherBot.Services
         {
             return new Attachment
             {
-
                 ContentType = AdaptiveCard.ContentType,
                 Content = AdaptiveCard.FromJson(json).Card
             };

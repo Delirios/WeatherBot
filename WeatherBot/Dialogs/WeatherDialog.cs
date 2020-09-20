@@ -17,10 +17,12 @@ namespace WeatherBot.Dialogs
     public class WeatherDialog : ComponentDialog
     {
         private readonly BotServices _botServices;
-        private readonly WeatherService _weatherService;
+        private readonly IWeatherService _weatherService;
+        private readonly StateService _stateService;
 
-        public WeatherDialog(string dialogId, BotServices botServices,WeatherService weatherService) : base(dialogId)
+        public WeatherDialog(string dialogId, BotServices botServices, IWeatherService weatherService, StateService stateService) : base(dialogId)
         {
+            _stateService = stateService;
             _weatherService = weatherService;
             _botServices = botServices;
             InitializeWaterfallDialog();
@@ -35,7 +37,6 @@ namespace WeatherBot.Dialogs
             };
 
             AddDialog(new WaterfallDialog($"{nameof(WeatherDialog)}.mainFlow", waterfallSteps));
-
             InitialDialogId = $"{nameof(WeatherDialog)}.mainFlow";
         }
 
@@ -55,7 +56,6 @@ namespace WeatherBot.Dialogs
             return await stepContext.EndDialogAsync(null, cancellationToken);
         }
 
-
         public async Task GetWeather(ITurnContext turnContext, CancellationToken cancellationToken)
         {
             try
@@ -72,7 +72,6 @@ namespace WeatherBot.Dialogs
                 var attachment = _botServices.CreateAdaptiveCardUsingJson(expanded);
                 var response = MessageFactory.Attachment(attachment);
                 await turnContext.SendActivityAsync(response);
-
             }
             catch (Exception e)
             {
