@@ -10,7 +10,9 @@ using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using WeatherBot.BusinessLogic;
+using WeatherBot.Dialogs;
 using WeatherBot.Services;
 
 namespace WeatherBot
@@ -33,11 +35,17 @@ namespace WeatherBot
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
             services.AddSingleton < BotServices>();
+            ConfigureDialogs(services);
 
             services.AddTransient<IWeatherService, WeatherService>();
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-            services.AddTransient<IBot, Bots.WeatherBot>();
+            services.AddTransient<IBot, Bots.WeatherBot<MainDialog>>();
 
+        }
+
+        private void ConfigureDialogs(IServiceCollection services)
+        {
+            services.AddSingleton<MainDialog>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

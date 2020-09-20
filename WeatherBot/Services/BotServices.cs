@@ -41,31 +41,7 @@ namespace WeatherBot.Services
             Dispatch = new LuisRecognizer(recognizerOptions);
         }
 
-        public async Task GetWeather(ITurnContext turnContext, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var result = await Dispatch.RecognizeAsync(turnContext, cancellationToken);
-                var token = result.Entities.FindTokens("CityType").First();
-                Regex rgx = new Regex("[^a-zA-Zа-щА-ЩЬьЮюЯяЇїІіЄєҐґ0-9 - ]");
-                var cityName = rgx.Replace(token.ToString(), "").Trim();
-                var data = await _weatherService.ShowWeatherDataAsync(cityName);
-
-                var template = new AdaptiveCardTemplate(File.ReadAllText("./Resources/adaptiveCard.json"));
-                var expanded = template.Expand(data);
-
-                var attachment = CreateAdaptiveCardUsingJson(expanded);
-                var response = MessageFactory.Attachment(attachment);
-                await turnContext.SendActivityAsync(response);
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                await turnContext.SendActivityAsync(MessageFactory.Text(e.Message, e.Message), cancellationToken);
-            }
-        }
-        private Attachment CreateAdaptiveCardUsingJson(string json)
+        public Attachment CreateAdaptiveCardUsingJson(string json)
         {
             return new Attachment
             {
