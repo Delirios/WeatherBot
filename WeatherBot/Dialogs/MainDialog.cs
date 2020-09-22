@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
@@ -42,10 +43,14 @@ namespace WeatherBot.Dialogs
         }
 
         
-
         private async Task<DialogTurnResult> InitialStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            // First, we use the dispatch model to determine which cognitive service (LUIS or QnA) to use.
+            var result = await _botServices.Translator(stepContext.Context, cancellationToken);
+            // First, we use the dispatch model to determine which cognitive service (LUIS or QnA) to use.\
+            stepContext.Context.Activity.Text = result; 
+            Regex rgx = new Regex("[^a-zA-Zа-щА-ЩЬьЮюЯяЇїІіЄєҐґ0-9 - ]");
+            var res = rgx.Replace(result, "").Trim();
+
             var recognizerResult = await _botServices.Dispatch.RecognizeAsync(stepContext.Context, cancellationToken);
             // Top intent tell us which cognitive service to use.
             var TopIntent = recognizerResult.GetTopScoringIntent();
