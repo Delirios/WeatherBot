@@ -70,8 +70,6 @@ namespace WeatherBot.Dialogs
             Regex rgx = new Regex("[^a-zA-Zа-щА-ЩЬьЮюЯяЇїІіЄєҐґ0-9 - ]");
             var modifiedResult = rgx.Replace(result, "").Trim();
             stepContext.Context.Activity.Text = modifiedResult;
-            
-            
 
             var recognizerResult = await _botServices.Dispatch.RecognizeAsync(stepContext.Context, cancellationToken);
             // Top intent tell us which cognitive service to use.
@@ -90,7 +88,6 @@ namespace WeatherBot.Dialogs
                         MessageFactory.Text("Я не розумію, що ви маєте на увазі"), cancellationToken);
                     break;
             }
-
             return await stepContext.NextAsync(null, cancellationToken);
         }
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)

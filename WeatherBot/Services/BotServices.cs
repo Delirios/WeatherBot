@@ -29,7 +29,7 @@ namespace WeatherBot.Services
 {
     public class BotServices
     {
-        private const string subscriptionKey = "18b51ff7123c4284aa345b6f00519340";
+        private const string subscriptionKey = "Your_Translator_Cognitive_Service_Key";
 
         private const string endpoint = "https://api.cognitive.microsofttranslator.com";
         public LuisRecognizer Dispatch { get; private set; }
@@ -56,7 +56,7 @@ namespace WeatherBot.Services
         {
             string recognizedResult = "";
             string url = "";
-            string key = "9326481e254c44f6bd77cf41f02a3ccb";
+            string key = "Your_Speech_Cognitive_Service_Key";
             string region = "westeurope";
             string filePath = "./Resources/VoiceMessage/";
             Guid fileOga = Guid.NewGuid();
@@ -99,9 +99,12 @@ namespace WeatherBot.Services
                 pcmStream.Position = 0;
                 var wavStream = new RawSourceWaveStream(pcmStream, new WaveFormat(48000, 1));
                 var sampleProvider = wavStream.ToSampleProvider();
+                
                 WaveFileWriter.CreateWaveFile16($"{filePath}{fileWav}{fileExtensionWav}", sampleProvider);
+                
                 using var audioConfig = AudioConfig.FromWavFileInput($"{filePath}{fileWav}{fileExtensionWav}");
                 using var recognizer = new SpeechRecognizer(config, audioConfig);
+                
                 var result = await recognizer.RecognizeOnceAsync();
                 switch (result.Reason)
                 {
