@@ -30,11 +30,15 @@
   <ItemGroup>
     <PackageReference Include="AdaptiveCards" Version="2.1.0" />
     <PackageReference Include="AdaptiveCards.Templating" Version="1.1.0" />
+    <PackageReference Include="Concentus" Version="1.1.7" />
+    <PackageReference Include="Concentus.OggFile" Version="1.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
     <PackageReference Include="Microsoft.Bot.Builder.AI.Luis" Version="4.10.3" />
     <PackageReference Include="Microsoft.Bot.Builder.Azure" Version="4.10.3" />
     <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.10.3" />
     <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.10.3" />
+    <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.13.0" />
+    <PackageReference Include="NAudio" Version="1.10.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,6 +55,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\WeatherBot.BusinessLogic\WeatherBot.BusinessLogic.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Resources\VoiceMessage\" />
     </ItemGroup>
 
 </Project>

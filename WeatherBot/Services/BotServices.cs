@@ -7,22 +7,31 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AdaptiveCards.Templating;
+using Concentus.Oggfile;
+using Concentus.Structs;
 using Helpers;
 using Microsoft.Bot.Builder;
+using Microsoft.CognitiveServices.Speech;
+using Microsoft.CognitiveServices.Speech.Audio;
 using Newtonsoft.Json;
 using WeatherBot.BusinessLogic;
 using WeatherBot.Models;
+using NAudio.Wave;
 
 namespace WeatherBot.Services
 {
     public class BotServices
     {
+        private const string subscriptionKey = "18b51ff7123c4284aa345b6f00519340";
+
+        private const string endpoint = "https://api.cognitive.microsofttranslator.com";
         public LuisRecognizer Dispatch { get; private set; }
 
         public BotServices(IConfiguration configuration)
@@ -43,18 +52,73 @@ namespace WeatherBot.Services
             Dispatch = new LuisRecognizer(recognizerOptions);
         }
 
-        public Attachment CreateAdaptiveCardUsingJson(string json)
+        public async Task<string> VoiceMessageRecognitionAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            return new Attachment
+            string recognizedResult = "";
+            string url = "";
+            string key = "9326481e254c44f6bd77cf41f02a3ccb";
+            string region = "westeurope";
+            string filePath = "./Resources/VoiceMessage/";
+            Guid fileOga = Guid.NewGuid();
+            Guid fileWav = Guid.NewGuid();
+            string fileExtensionOga = ".oga";
+            string fileExtensionWav = ".wav";
+            var config = SpeechConfig.FromSubscription(key, region);
+            var attacmentsList = turnContext.Activity.Attachments;
+            foreach (var item in attacmentsList)
             {
-                ContentType = AdaptiveCard.ContentType,
-                Content = AdaptiveCard.FromJson(json).Card
-            };
+                url = item.ContentUrl;
+            }
+
+            using (var client = new WebClient())
+            {
+                var content = client.DownloadData(url);
+                using (var fileStream = File.Create($"{filePath}{fileOga}{fileExtensionOga}"))
+                {
+                    await fileStream.WriteAsync(content);
+                }
+            }
+
+            using (FileStream fileIn = new FileStream($"{filePath}{fileOga}{fileExtensionOga}", FileMode.Open))
+            using (MemoryStream pcmStream = new MemoryStream())
+            {
+                OpusDecoder decoder = OpusDecoder.Create(48000, 1);
+                OpusOggReadStream oggIn = new OpusOggReadStream(decoder, fileIn);
+                while (oggIn.HasNextPacket)
+                {
+                    short[] packet = oggIn.DecodeNextPacket();
+                    if (packet != null)
+                    {
+                        for (int i = 0; i < packet.Length; i++)
+                        {
+                            var bytes = BitConverter.GetBytes(packet[i]);
+                            pcmStream.Write(bytes, 0, bytes.Length);
+                        }
+                    }
+                }
+                pcmStream.Position = 0;
+                var wavStream = new RawSourceWaveStream(pcmStream, new WaveFormat(48000, 1));
+                var sampleProvider = wavStream.ToSampleProvider();
+                WaveFileWriter.CreateWaveFile16($"{filePath}{fileWav}{fileExtensionWav}", sampleProvider);
+                using var audioConfig = AudioConfig.FromWavFileInput($"{filePath}{fileWav}{fileExtensionWav}");
+                using var recognizer = new SpeechRecognizer(config, audioConfig);
+                var result = await recognizer.RecognizeOnceAsync();
+                switch (result.Reason)
+                {
+                    case ResultReason.RecognizedSpeech:
+                        recognizedResult = result.Text;
+                        break;
+                    case ResultReason.NoMatch:
+                        throw new Exception("Speech could not be recognized");
+                }
+            }
+            DirectoryInfo di = new DirectoryInfo(filePath);
+            var files = di.GetFiles();
+            files.Where(p => p.Name.Contains(fileWav.ToString()) || p.Name.Contains(fileOga.ToString()))
+                .ToList()
+                .ForEach(p => p.Delete());
+            return recognizedResult;
         }
-
-        private const string subscriptionKey = "YOUR_SUBSCRIPTION_KEY";
-
-        private const string endpoint = "https://api.cognitive.microsofttranslator.com";
 
 
         public async Task<string> Translator(ITurnContext turnContext, CancellationToken cancellation)
@@ -99,5 +163,14 @@ namespace WeatherBot.Services
             }
 
         }
+        public Attachment CreateAdaptiveCardUsingJson(string json)
+        {
+            return new Attachment
+            {
+                ContentType = AdaptiveCard.ContentType,
+                Content = AdaptiveCard.FromJson(json).Card
+            };
+        }
+
     }
 }

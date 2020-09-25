@@ -61,8 +61,9 @@ namespace WeatherBot.Dialogs
             try
             {
                 var result = await _botServices.Dispatch.RecognizeAsync(turnContext, cancellationToken);
-                var token = result.Entities.FindTokens("CityType").First();
                 Regex rgx = new Regex("[^a-zA-Zа-щА-ЩЬьЮюЯяЇїІіЄєҐґ0-9 - ]");
+                var token = result.Entities.FindTokens("CityType").First();
+
                 var cityName = rgx.Replace(token.ToString(), "").Trim();
                 var data = await _weatherService.ShowWeatherDataAsync(cityName);
 

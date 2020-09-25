@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.CognitiveServices.Speech.Audio;
 using WeatherBot.BusinessLogic;
 using WeatherBot.Services;
 
@@ -45,11 +49,29 @@ namespace WeatherBot.Dialogs
         
         private async Task<DialogTurnResult> InitialStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var result = await _botServices.Translator(stepContext.Context, cancellationToken);
+            string result = "";
+            if (stepContext.Context.Activity.Attachments != null)
+            {
+                try
+                {
+                    result = await _botServices.VoiceMessageRecognitionAsync(stepContext.Context, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+            }
+            else
+            {
+                result = await _botServices.Translator(stepContext.Context, cancellationToken);
+            }
+
             // First, we use the dispatch model to determine which cognitive service (LUIS or QnA) to use.\
-            stepContext.Context.Activity.Text = result; 
             Regex rgx = new Regex("[^a-zA-Zа-щА-ЩЬьЮюЯяЇїІіЄєҐґ0-9 - ]");
-            var res = rgx.Replace(result, "").Trim();
+            var modifiedResult = rgx.Replace(result, "").Trim();
+            stepContext.Context.Activity.Text = modifiedResult;
+            
+            
 
             var recognizerResult = await _botServices.Dispatch.RecognizeAsync(stepContext.Context, cancellationToken);
             // Top intent tell us which cognitive service to use.
