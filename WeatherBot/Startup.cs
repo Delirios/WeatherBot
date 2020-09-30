@@ -36,6 +36,8 @@ namespace WeatherBot
 
             services.AddSingleton <BotServices>();
 
+            services.AddSingleton<RecognitionServices>();
+
             ConfigureDialogs(services);
 
             ConfigureState(services);

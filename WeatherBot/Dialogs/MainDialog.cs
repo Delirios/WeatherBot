@@ -20,9 +20,11 @@ namespace WeatherBot.Dialogs
         private readonly BotServices _botServices;
         private readonly IWeatherService _weatherService;
         private readonly StateService _stateService;
+        private readonly RecognitionServices _recognitionServices;
 
-        public MainDialog(BotServices botServices, IWeatherService weatherService, StateService stateService) : base(nameof(MainDialog))
+        public MainDialog(BotServices botServices, IWeatherService weatherService, StateService stateService, RecognitionServices recognitionServices) : base(nameof(MainDialog))
         {
+            _recognitionServices = recognitionServices;
             _stateService = stateService;
             _weatherService = weatherService;
             _botServices = botServices;
@@ -54,7 +56,9 @@ namespace WeatherBot.Dialogs
             {
                 try
                 {
-                    result = await _botServices.VoiceMessageRecognitionAsync(stepContext.Context, cancellationToken);
+                    var message = "Розпізнавання голосового повідомлення";
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(message, message));
+                    result = await _recognitionServices.VoiceMessageRecognitionAsync(stepContext.Context, cancellationToken);
                 }
                 catch (Exception e)
                 {
@@ -63,7 +67,7 @@ namespace WeatherBot.Dialogs
             }
             else
             {
-                result = await _botServices.Translator(stepContext.Context, cancellationToken);
+                result = await _recognitionServices.Translator(stepContext.Context, cancellationToken);
             }
 
             // First, we use the dispatch model to determine which cognitive service (LUIS or QnA) to use.\
